@@ -10,7 +10,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $table ='categories';
+    protected $table = 'categories';
 
     // public function categories_type() {
     //     return $this->hasMany(CategoryType::class,'categories_id','id')->with('type:id,type');
@@ -28,52 +28,54 @@ class Category extends Model
         'updated_at'
     ];
 
-   
+    public function parameter()
+    {
+        return $this->hasMany(parameter::class);
+    }
 
     public function getParameterTypeNamesAttribute()
     {
-        $parameter_types = self::select('parameter_types')->where('categories.id',$this->id)->first();
+        $parameter_types = self::select('parameter_types')->where('categories.id', $this->id)->first();
 
         $tempRow = array();
 
-        $parameterTypes = explode(',',$parameter_types->parameter_types);
-       
-        foreach($parameterTypes as $row){
-            if($row == 1){
+        $parameterTypes = explode(',', $parameter_types->parameter_types);
+
+        foreach ($parameterTypes as $row) {
+            if ($row == 1) {
                 $tempRow[]  = 'Carpet Area';
             }
-            if($row == 2){
+            if ($row == 2) {
                 $tempRow[]  = 'Built-Up Area';
-            } 
-            if($row == 3){
+            }
+            if ($row == 3) {
                 $tempRow[]  = 'Plot Area';
-            } 
-            if($row == 4){
+            }
+            if ($row == 4) {
                 $tempRow[]  = 'Hecta Area';
-            } 
-            
-            if($row == 5){
+            }
+
+            if ($row == 5) {
                 $tempRow[]  = 'Acre';
-            } 
-            if($row == 6){
+            }
+            if ($row == 6) {
                 $tempRow[]  = 'House Type';
-            } 
-            if($row == 7){
+            }
+            if ($row == 7) {
                 $tempRow[]  = 'Furnished';
-            } 
+            }
 
-            if($row == 8){
+            if ($row == 8) {
                 $tempRow[]  = 'House No';
-            } 
-            if($row == 9){
+            }
+            if ($row == 9) {
                 $tempRow[]  = 'Survey No';
-            } 
+            }
 
-            if($row == 10){
+            if ($row == 10) {
                 $tempRow[]  = 'Plot No';
-            } 
+            }
         }
-        return implode(',',$tempRow);
+        return implode(',', $tempRow);
     }
-
 }

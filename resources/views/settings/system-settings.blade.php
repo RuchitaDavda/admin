@@ -45,8 +45,7 @@
                                 <label class="col-sm-2 col-form-label text-center">Website</label>
                                 <div class="col-sm-4">
                                     <input name="company_website" type="text" class="form-control" placeholder="Website"
-                                        value="{{ system_setting('company_website') != '' ? system_setting('company_website') : '' }}"
-                                        >
+                                        value="{{ system_setting('company_website') != '' ? system_setting('company_website') : '' }}">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -88,63 +87,103 @@
 
 
                     </div>
-
-
-                    <div class="divider">
-                        <h6 class="divider-text">More Setting</h6>
-
+                    <div class="divider ">
+                        <h6 class="divider-text">Advertisement Payment Settings</h6>
                     </div>
-                    <div class="form-group row ">
+                    <div class="form-group row mt-1">
 
-                        <label class="col-sm-2 form-check-label text-center">Maintenance Mode</label>
-                        <div class="col-sm-2 col-md-4 col-xs-12 text-center">
-                            <div class="form-check form-switch  text-center">
 
-                                <input type="hidden" name="maintenance_mode" id="maintenance_mode"
-                                    value="{{ system_setting('maintenance_mode') != '' ? system_setting('maintenance_mode') : 0 }}">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                    {{ system_setting('maintenance_mode') == '1' ? 'checked' : '' }}
-                                    id="switch_maintenance_mode">
-                                <label class="form-check-label" for="switch_maintenance_mode"></label>
-                            </div>
-                        </div>
-                        <label class="col-sm-2 form-check-label text-center">Currency Symbol</label>
-                        <div class="col-sm-1">
-                            <input name="currency_symbol" type="text" class="form-control" placeholder="Currency Symbol"
-                                value="{{ system_setting('currency_symbol') != '' ? system_setting('currency_symbol') : '' }}"
+                        <label class="col-sm-2 form-check-label text-center"> Price For Slider</label>
+
+                        <div class="col-sm-2 col-md-2 col-xs-12 text-center">
+                            <input type="hidden" name="advertisement_price_for_slider" id="advertisement_price_for_slider"
+                                value="{{ system_setting('advertisement_price_for_slider') != '' ? system_setting('advertisement_price_for_slider') : 0 }}">
+                            <input name="advertisement_price_for_slider" type="text" class="form-control"
+                                placeholder="price" pattern="\d*"
+                                value="{{ system_setting('advertisement_price_for_slider') != '' ? system_setting('advertisement_price_for_slider') : '' }}"
                                 required="">
+                            <label class="form-check-label" for="advertisement_price_for_slider"></label>
+                        </div>
+                        <label class="col-sm-2 form-check-label text-center"> Price For Home Page</label>
+
+                        <div class="col-sm-2 col-md-2 col-xs-12 text-center">
+                            <input type="hidden" name="advertisement_price_for_home" id="advertisement_price_for_home"
+                                value="{{ system_setting('advertisement_price_for_home') != '' ? system_setting('advertisement_price_for_home') : 0 }}">
+                            <input name="advertisement_price_for_home" type="text" class="form-control"
+                                placeholder="price" pattern="\d*"
+                                value="{{ system_setting('advertisement_price_for_home') != '' ? system_setting('advertisement_price_for_home') : '' }}"
+                                required="">
+                            <label class="form-check-label" for="advertisement_price_for_home"></label>
+                        </div>
+                        <label class="col-sm-2 form-check-label text-center"> Price For Product Listing</label>
+
+                        <div class="col-sm-2 col-md-2 col-xs-12 text-center">
+                            <input type="hidden" name="advertisement_price_for_list" id="advertisement_price_for_list"
+                                value="{{ system_setting('advertisement_price_for_list') != '' ? system_setting('advertisement_price_for_list') : 0 }}">
+                            <input name="advertisement_price_for_list" type="text" class="form-control"
+                                placeholder="price" pattern="\d*"
+                                value="{{ system_setting('advertisement_price_for_list') != '' ? system_setting('advertisement_price_for_list') : '' }}"
+                                required="">
+                            <label class="form-check-label" for="advertisement_price_for_list"></label>
                         </div>
 
                     </div>
+                </div>
 
-                    <div class="divider">
-                        <h6 class="divider-text">Notification FCM Key</h6>
+                <div class="divider">
+                    <h6 class="divider-text">More Setting</h6>
 
-                    </div>
+                </div>
+                <div class="form-group row ">
 
-                    <div class="form-group row ">
+                    <label class="col-sm-2 form-check-label text-center">Maintenance Mode</label>
+                    <div class="col-sm-2 col-md-4 col-xs-12 text-center">
+                        <div class="form-check form-switch  text-center">
 
-                        <label class="col-sm-2 form-check-label text-center">FCM Key</label>
-                        <div class="col-sm-10 col-md-10 col-xs-12 text-center">
-                            <textarea name="fcm_key" class="form-control" rows="3" placeholder="Fcm Key">{{ system_setting('fcm_key') != '' ? system_setting('fcm_key') : '' }}</textarea>
-
+                            <input type="hidden" name="maintenance_mode" id="maintenance_mode"
+                                value="{{ system_setting('maintenance_mode') != '' ? system_setting('maintenance_mode') : 0 }}">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                {{ system_setting('maintenance_mode') == '1' ? 'checked' : '' }}
+                                id="switch_maintenance_mode">
+                            <label class="form-check-label" for="switch_maintenance_mode"></label>
                         </div>
+                    </div>
+                    <label class="col-sm-2 form-check-label text-center">Currency Symbol</label>
+                    <div class="col-sm-1">
+                        <input name="currency_symbol" type="text" class="form-control" placeholder="Currency Symbol"
+                            value="{{ system_setting('currency_symbol') != '' ? system_setting('currency_symbol') : '' }}"
+                            required="">
+                    </div>
 
+                </div>
+
+                <div class="divider">
+                    <h6 class="divider-text">Notification FCM Key</h6>
+
+                </div>
+
+                <div class="form-group row ">
+
+                    <label class="col-sm-2 form-check-label text-center">FCM Key</label>
+                    <div class="col-sm-10 col-md-10 col-xs-12 text-center">
+                        <textarea name="fcm_key" class="form-control" rows="3" placeholder="Fcm Key">{{ system_setting('fcm_key') != '' ? system_setting('fcm_key') : '' }}</textarea>
 
                     </div>
 
-                    {{-- <div class="card-footer"> --}}
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" name="btnAdd" value="btnAdd"
-                            class="btn btn-primary me-1 mb-1">Save</button>
-                    </div>
-                    {{-- </div> --}}
-                 </form>
-         </div>
+
+                </div>
+
+                {{-- <div class="card-footer"> --}}
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" name="btnAdd" value="btnAdd" class="btn btn-primary me-1 mb-1">Save</button>
+                </div>
+                {{-- </div> --}}
+            </form>
+        </div>
         </div>
 
-      
-       
+
+
     </section>
 @endsection
 

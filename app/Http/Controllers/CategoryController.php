@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-
+use App\Models\parameter;
 use App\Models\Type;
 use Illuminate\Http\Request;
 
@@ -20,7 +20,8 @@ class CategoryController extends Controller
         if (!has_permissions('read', 'categories')) {
             return redirect()->back()->with('error', PERMISSION_ERROR_MSG);
         } else {
-            return view('categories.index');
+            $parameters = parameter::all();
+            return view('categories.index', ['parameters' => $parameters]);
         }
     }
 
@@ -57,8 +58,14 @@ class CategoryController extends Controller
             }
 
             $saveCategories->category = ($request->category) ? $request->category : '';
-            $saveCategories->parameter_types = ($request->parameter_type) ? implode(',',$request->parameter_type) : '';
+            $saveCategories->parameter_types = ($request->parameter_type) ? implode(',', $request->parameter_type) : '';
             $saveCategories->save();
+            // foreach ($request->parameter_type as $parameter) {
+            //     $parameter = new parameter();
+            //     $parameter->category_id = $saveCategories->id;
+            //     $parameter->name = $parameter;
+            //     $parameter->save();
+            // }
             return back()->with('success', 'Category Successfully Added');
         }
     }
@@ -74,10 +81,23 @@ class CategoryController extends Controller
     public function update(Request $request)
     {
 
-
+        // dd($request->toArray());
         if (!has_permissions('update', 'categories')) {
             return redirect()->back()->with('error', PERMISSION_ERROR_MSG);
         } else {
+
+
+
+
+            $arr = [];
+            $parameters = parameter::all();
+            foreach ($parameters as $par) {
+
+                if ($request->has($par->name)) {
+                    $arr = $arr + [$par->id => $request->input($par->name)];
+                }
+            }
+
             $id =  $request->edit_id;
             $old_image =  $request->old_image;
             $Category = Category::find($id);
@@ -107,19 +127,20 @@ class CategoryController extends Controller
             $Category->category = ($request->edit_category) ? $request->edit_category : '';
             $Category->status = ($request->status) ? $request->status : 0;
             $Category->sequence = ($request->sequence) ? $request->sequence : 0;
-            $Category->parameter_types = ($request->edit_parameter_type) ? implode(',',$request->edit_parameter_type) : '';
+            $Category->parameter_types = $request->update_seq;
 
             $Category->update();
 
 
 
-             return back()->with('success', 'Category Successfully Update');
+            return back()->with('success', 'Category Successfully Update');
         }
     }
 
 
 
-    public function categoryList() {
+    public function categoryList()
+    {
         $offset = 0;
         $limit = 10;
         $sort = 'id';
@@ -143,7 +164,8 @@ class CategoryController extends Controller
 
 
 
-        $sql = Category::orderBy($sort,$order);
+        $sql = Category::orderBy($sort, $order);
+        // dd($sql->toArray());
 
 
         if (isset($_GET['search']) && !empty($_GET['search'])) {
@@ -159,8 +181,8 @@ class CategoryController extends Controller
         }
 
 
-        $res = $sql->get()->append('ParameterTypeNames');
-        //return $res;
+        $res = $sql->get();
+        // return $res;
         $bulkData = array();
         $bulkData['total'] = $total;
         $rows = array();
@@ -169,23 +191,34 @@ class CategoryController extends Controller
 
 
         $operate = '';
+        $tempRow['type'] = '';
+        $parameter_name_arr = [];
         foreach ($res as $row) {
             $tempRow['id'] = $row->id;
             $tempRow['category'] = $row->category;
             $tempRow['status'] = ($row->status == '0') ? '<span class="badge rounded-pill bg-danger">Inactive</span>' : '<span class="badge rounded-pill bg-success">Active</span>';
-            $tempRow['image'] = ($row->image != '') ? '<a class="image-popup-no-margins" href="' .url('images') . config('global.CATEGORY_IMG_PATH')  . $row->image . '"><img class="rounded avatar-md shadow img-fluid" alt="" src="' . url('images'). config('global.CATEGORY_IMG_PATH')  . $row->image . '" width="55"></a>' : '';
+            $tempRow['image'] = ($row->image != '') ? '<a class="image-popup-no-margins" href="' . url('images') . config('global.CATEGORY_IMG_PATH')  . $row->image . '"><img class="rounded avatar-md shadow img-fluid" alt="" src="' . url('images') . config('global.CATEGORY_IMG_PATH')  . $row->image . '" width="55"></a>' : '';
 
 
             $tempRow['sequence'] = $row->sequence;
-            $tempRow['type'] = isset($row->ParameterTypeNames) ? $row->ParameterTypeNames : '';
 
-            $ids= isset($row->parameter_types) ? $row->parameter_types : '';
-            $operate = '<a  id="' . $row->id . '"  class="btn icon btn-primary btn-sm rounded-pill" data-status="'.$row->status.'" data-oldimage="'.$row->image.'" data-types="'.$ids.'" data-bs-toggle="modal" data-bs-target="#editModal"  onclick="setValue(this.id);" title="Edit"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+            $parameter_type_arr = explode(',', $row->parameter_types);
 
-            if($row->status == '0'){
-                $operate .=   '&nbsp;<a id="'.$row->id.'" class="btn icon btn-primary btn-sm rounded-pill" onclick="return active(this.id);" title="Enable"><i class="bi bi-eye-fill"></i></a>';
-            }else{
-                $operate .=   '&nbsp;<a id="'.$row->id.'" class="btn icon btn-danger btn-sm rounded-pill" onclick="return disable(this.id);" title="Disable"><i class="bi bi-eye-slash-fill"></i></a>';
+            $arr = [];
+            foreach ($parameter_type_arr as $p) {
+                $par = parameter::find($p);
+                $arr = array_merge($arr, [$par->name]);
+            }
+
+            $tempRow['type'] = implode(',', $arr);
+
+            $ids = isset($row->parameter_types) ? $row->parameter_types : '';
+            $operate = '<a  id="' . $row->id . '"  class="btn icon btn-primary btn-sm rounded-pill" data-status="' . $row->status . '" data-oldimage="' . $row->image . '" data-types="' . $ids . '" data-bs-toggle="modal" data-bs-target="#editModal"  onclick="setValue(this.id);" title="Edit"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+
+            if ($row->status == '0') {
+                $operate .=   '&nbsp;<a id="' . $row->id . '" class="btn icon btn-primary btn-sm rounded-pill" onclick="return active(this.id);" title="Enable"><i class="bi bi-eye-fill"></i></a>';
+            } else {
+                $operate .=   '&nbsp;<a id="' . $row->id . '" class="btn icon btn-danger btn-sm rounded-pill" onclick="return disable(this.id);" title="Disable"><i class="bi bi-eye-slash-fill"></i></a>';
             }
 
             $tempRow['operate'] = $operate;
@@ -207,7 +240,7 @@ class CategoryController extends Controller
             return response()->json($response);
         } else {
 
-            Category::where('id',$request->id)->update(['status' => $request->status]);
+            Category::where('id', $request->id)->update(['status' => $request->status]);
             $response['error'] = false;
             return response()->json($response);
         }

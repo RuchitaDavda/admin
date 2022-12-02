@@ -2,9 +2,12 @@
 
 @section('title')
     Categories
+    <link rel="stylesheet" href="https://bevacqua.github.io/dragula/dist/dragula.css" />
 @endsection
 
 @section('page-title')
+    {{-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /> --}}
+
     <div class="page-title">
         <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
@@ -20,6 +23,7 @@
 
 
 @section('content')
+
     <section class="section">
         <div class="card">
 
@@ -49,22 +53,22 @@
 
                                 {{ Form::label('type', 'Parameter Type', ['class' => 'col-sm-2 col-form-label text-center']) }}
                                 <div class="col-sm-3 ">
-                                    <select name="parameter_type[]" class="select2 form-select form-control-sm" multiple>
-                                        <option value=""> Select Option </option>
-                                        <option value="1">Carpet Area</option>
-                                        <option value="2">Built-Up Area</option>
-                                        <option value="3">Plot Area</option>
-                                        <option value="4">Hecta Area</option>
-                                        <option value="5">Acre</option>
-                                        <option value="6">House Type</option>
-                                        <option value="7">Furnished </option>
-                                        <option value="8">House No</option>
-                                        <option value="9">Survey No</option>
-                                        <option value="10">Plot No</option>
+                                    <select name="parameter_type[]" class="select2 form-select form-control-sm"
+                                        id="select_parameter_type" multiple>
+                                        @foreach ($parameters as $parameter)
+                                            <option value={{ $parameter->id }}>{{ $parameter->name }}</option>
+                                        @endforeach
+
+
+
                                     </select>
+
+
+
                                 </div>
+
                                 {{ Form::label('image', 'Image', ['class' => 'col-sm-1 col-form-label text-center']) }}
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
                                     {{ Form::file('image', ['class' => 'form-control']) }}
                                     @if (count($errors) > 0)
                                         @foreach ($errors->all() as $error)
@@ -81,6 +85,7 @@
                             {{-- </div> --}}
                             {{-- </div> --}}
                             {!! Form::close() !!}
+
                         </div>
                     </div>
                 </div>
@@ -150,23 +155,44 @@
                             </div>
                             <div class="col-sm-12">
                                 {{ Form::label('type', 'Type', ['class' => 'col-sm-12 col-form-label text-center']) }}
-                                <div class="col-sm-12 ">
-                                    <select name="edit_parameter_type[]" id="edit_parameter_type"
-                                        class="select2 form-select form-control-sm" multiple>
-                                        <option value=""> Select Option </option>
-                                        <option value="1">Carpet Area</option>
-                                        <option value="2">Built-Up Area</option>
-                                        <option value="3">Plot Area</option>
-                                        <option value="4">Hecta Area</option>
-                                        <option value="5">Acre</option>
-                                        <option value="6">House Type</option>
-                                        <option value="7">Furnished </option>
-                                        <option value="8">House No</option>
-                                        <option value="9">Survey No</option>
-                                        <option value="10">Plot No</option>
+                                {{-- <div class="col-sm-12 sequence">
+
+
+
+                                    <select name="edit_parameter_type[]" id="edit_parameter_type" class="chosen-select"
+                                        multiple>
+                                        @foreach ($parameters as $parameter)
+                                            <option value={{ $parameter->id }}>{{ $parameter->name }}
+                                            </option>
+                                        @endforeach
 
                                     </select>
+                                </div> --}}
+
+
+                                <div id="output"></div>
+
+                                <select data-placeholder="Choose parameter ..." name="edit_parameter_type[]"
+                                    id="edit_parameter_type" multiple class="chosen-select">
+                                    @foreach ($parameters as $parameter)
+                                        <option value={{ $parameter->id }}>{{ $parameter->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                {{-- <input type="submit"> --}}
+
+                            </div>
+
+                            <div class="col-sm- sequence">
+
+
+                                <div id="par" class="row pt-3">
+
                                 </div>
+                                <input type="hidden" name="update_seq" id="update_seq">
+                                <button id="btn_seq" value="change"
+                                    class="btn btn-primary waves-effect waves-light">Change</button>
+                                {{-- </div> --}}
                             </div>
                             {{ Form::label('image', 'Image', ['class' => 'col-sm-12 col-form-label text-center']) }}
                             <div class="col-sm-12">
@@ -177,18 +203,6 @@
                                     @endforeach
                                 @endif
                             </div>
-                            <div class="col-sm-12">
-
-                                <div class="col-md-12 col-12">
-                                    <div class="form-group mandatory">
-                                        <label for="sequence" class="form-label col-12 text-center">Sequence</label>
-                                        <input type="text" id="sequence" class="form-control col-12"
-                                            placeholder="Name" name="sequence" data-parsley-required="true">
-                                    </div>
-                                </div>
-
-                            </div>
-
                             <div class="col-sm-12 col-12">
                                 <div class="form-group mandatory">
                                     <label for="email" class="form-label col-12 text-center">Status</label>
@@ -196,6 +210,7 @@
                                         'class' => 'form-select',
                                         'id' => 'status',
                                     ]) !!}
+
                                 </div>
                             </div>
 
@@ -218,7 +233,26 @@
 @endsection
 
 @section('script')
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/$VERSION/dragula.min.js'></script>
     <script>
+        $('#add').hide();
+
+        $('#add_parameter').click(function() {
+            // console.log($('parameter').val());
+            $('#add').slideToggle();
+
+
+
+        });
+        $('#add_parameter_value').click(function() {
+            console.log("in");
+            param = $('#parameter').val();
+            console.log($('#Parameter').val());
+
+            $('#select_parameter_type').append($('<option></option>').val('adddd').html($('#Parameter').val()));
+
+        });
+
         function queryParams(p) {
             return {
                 sort: p.sort,
@@ -302,9 +336,86 @@
             });
         }
 
+        $('#btn_seq').click(function(e) {
+            e.preventDefault();
+
+            console.log("click...");
+
+            var sequence = [];
+            $('.seq').each(function() {
+                console.log($(this).attr('id'));
+                sequence.push($(this).attr('id'));
+
+            });
+            console.log(sequence.toString());
+            $('#update_seq').val(sequence.toString());
+
+        });
+
+        $('#edit_parameter_type').on('change', function() {
+
+            $('#edit_parameter_type option:not(:selected)').each(function() {
+                console.log('not::' + ($('.' + this.text)).html());
+                ($('.' + this.text)).remove();
+                var sequence = [];
+                $('.seq').each(function() {
+
+                    console.log("in");
+                    sequence.push($(this).attr('id'));
+
+                });
+                $('#update_seq').val(sequence.toString());
+            });
+
+            $("#edit_parameter_type option:selected").map(function() {
+                    console.log(this.text + ':' + ($('#par').find($('.' + this.text)).length));
+
+
+                    if ($('#par').find($('.' + this.text)).length == 0) {
+
+                        console.log(this.text + ':' + $('#' + this.value).length);
+
+
+                        $('#par').append($(
+
+
+                            '<div id = "' + this.value + '" class="col-sm-6 left1 seq ' + this.text +
+                            '">' +
+                            this.text +
+                            '</div>'
+                            // '<div id = "left1" class="col-sm-6 ' + this.text + '"> <p id = "' + this
+                            // .value +
+                            // '" name="' + this.text +
+                            // '" class="seq" value="' +
+                            // this.value +
+                            // '"> ' + this.text +
+                            // ' </p></div>'
+
+                        ));
+                    }
+                }
+
+            );
+
+
+            var sequence = [];
+            $('.seq').each(function() {
+
+                console.log("in");
+                sequence.push($(this).attr('id'));
+
+            });
+
+
+            $('#update_seq').val(sequence.toString());
+
+
+
+        });
 
         function setValue(id) {
-            //$('#editUserForm').attr('action', ($('#editUserForm').attr('action') +'/edit/'+id));
+
+
             $("#edit_id").val(id);
             $("#edit_category").val($("#" + id).parents('tr:first').find('td:nth-child(3)').text());
             $("#sequence").val($("#" + id).parents('tr:first').find('td:nth-child(6)').text());
@@ -313,10 +424,59 @@
             $("#status").val($("#" + id).data('status')).trigger('change');
 
             var type = ($("#" + id).data('types')).toString();
+
             if (type != '') {
                 $('#edit_parameter_type').val(type.split(',')).trigger('change');
             }
 
+            $('#par').empty();
+            str = '';
+            $("#edit_parameter_type :selected").each(function() {
+
+                str += this.value + ',';
+
+
+
+                $('#par').append($(
+                    '<div id = "' + this.value + '" class="col-sm-6 left1 seq ' + this.text + '">' + this
+                    .text +
+                    '</div>'
+
+                ));
+
+            });
+            console.log(str);
+            $(".chosen-select").val(str.split(',')).trigger('chosen:updated');
+
+            var sequence = [];
+            $('.seq').each(function() {
+
+                console.log("in");
+                sequence.push($(this).attr('id'));
+
+            });
+            $('#update_seq').val(sequence.toString());
+
+            dragula(
+                [document.querySelector('#par')].concat(
+                    Array.from(document.querySelectorAll('.left1'))
+                ), {
+                    // revertOnSpill: true
+
+                });
+            // dragula([$('#par'), $('#left1')]);
+
         }
+        var sequence = [];
+        $('.seq').each(function() {
+
+
+            sequence.push($(this).attr('id'));
+
+        });
+
+        $('#update_seq').val(sequence.toString());
+        document.getElementById('output').innerHTML = location.search;
+        $(".chosen-select").chosen();
     </script>
 @endsection

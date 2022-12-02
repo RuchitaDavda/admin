@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Notifications;
+use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Claims\Custom;
@@ -20,7 +21,8 @@ class NotificationController extends Controller
         if (!has_permissions('read', 'notification')) {
             return redirect()->back()->with('error', PERMISSION_ERROR_MSG);
         } else {
-            return view('notification.index');
+            $property_list = Property::all();
+            return view('notification.index', compact('property_list'));
         }
     }
 
@@ -44,16 +46,16 @@ class NotificationController extends Controller
             if ($get_fcm_key->data != '') {
                 $request->validate(
                     [
-                    'file' => 'image|mimes:jpeg,png,jpg',
-                    'type' => 'required',
-                    'send_type' => 'required',
-                    'user_id' => 'required_if:users,==,selected',
-                    'title' => 'required',
-                    'message' => 'required',
-                ],
+                        'file' => 'image|mimes:jpeg,png,jpg',
+                        'type' => 'required',
+                        'send_type' => 'required',
+                        'user_id' => 'required_if:users,==,selected',
+                        'title' => 'required',
+                        'message' => 'required',
+                    ],
                     [
-                    'user_id.*' => 'Select User From Table',
-                ]
+                        'user_id.*' => 'Select User From Table',
+                    ]
                 );
 
 
@@ -74,24 +76,29 @@ class NotificationController extends Controller
 
                 if ($request->send_type == 1) {
                     $user_id = '';
-                    $fcm_ids = Customer::where("fcm_id","!=","")->where('isActive', '1')->get()->all();
+                    $fcm_ids = Customer::where("fcm_id", "!=", "")->where('isActive', '1')->where('notification', 1)->get()->all();
                 } else {
                     $user_id = $request->user_id;
                     $fcm_ids = explode(',', $request->fcm_id);
                 }
-
-
+                $type = 0;
+                if (isset($request->property)) {
+                    $type = 2;
+                    $propertys_id = $request->property;
+                } else {
+                    $type = $request->type;
+                }
                 Notifications::create([
                     'title' => $request->title,
                     'message' => $request->message,
                     'image' => $imageName,
-                    'type' => $request->type,
+                    'type' => $type,
                     'send_type' => $request->send_type,
                     'customers_id' => $user_id,
-                    'propertys_id' => '0'
+                    'propertys_id' => $propertys_id
                 ]);
 
-                $img = ($imageName!='') ? url('') . config('global.IMG_PATH') . config('global.NOTIFICATION_IMG_PATH'). $imageName : "";
+                $img = ($imageName != '') ? url('') . config('global.IMG_PATH') . config('global.NOTIFICATION_IMG_PATH') . $imageName : "";
 
 
                 //START :: Send Notification To Customer
@@ -207,17 +214,25 @@ class NotificationController extends Controller
             if (has_permissions('delete', 'notification')) {
                 $operate = '<a data-id=' . $row->id . ' data-image="' . $row->image . '" class="btn icon btn-danger btn-sm rounded-pill mt-2 delete-data" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-dark" title="Delete"><i class="bi bi-trash"></i></a>';
             }
-
+            $type = '';
+            if ($row->type == 0) {
+                $type = 'General Notification';
+            }
+            if ($row->type == 1) {
+                $type = 'Inquiry Notification';
+            }
+            if ($row->type == 2) {
+                $type = 'Property Notification';
+            }
             $tempRow['count'] = $count;
             $tempRow['id'] = $row->id;
-            $tempRow['type'] = ($row->type == 0) ? 'General Notification' : 'Inquiry Notification';
+            $tempRow['type'] = $type;
             $tempRow['send_type'] = ($row->send_type == 0) ? 'Selected' : 'All';
             $tempRow['title'] = $row->title;
             $tempRow['message'] = $row->message;
             $tempRow['customers_id'] = $row->customers_id;
-            $tempRow['created_at'] = $row->created_at->diffForHumans();
-            ;
-            $tempRow['image'] = ($row->image != '') ? '<a class="image-popup-no-margins" href="' .config('global.IMG_PATH') . config('global.NOTIFICATION_IMG_PATH')  . $row->image . '"><img class="rounded avatar-md shadow img-fluid" alt="" src="' . config('global.IMG_PATH') . config('global.NOTIFICATION_IMG_PATH')  . $row->image . '" width="55"></a>' : ''; //(!empty($row->image)) ? '<a href=' . $image . ' data-lightbox="Images"><img src="' . $image . '" height=50, width=50 ></a>' : 'No Image';
+            $tempRow['created_at'] = $row->created_at->diffForHumans();;
+            $tempRow['image'] = ($row->image != '') ? '<a class="image-popup-no-margins" href="' . config('global.IMG_PATH') . config('global.NOTIFICATION_IMG_PATH')  . $row->image . '"><img class="rounded avatar-md shadow img-fluid" alt="" src="' . config('global.IMG_PATH') . config('global.NOTIFICATION_IMG_PATH')  . $row->image . '" width="55"></a>' : ''; //(!empty($row->image)) ? '<a href=' . $image . ' data-lightbox="Images"><img src="' . $image . '" height=50, width=50 ></a>' : 'No Image';
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
             $count++;

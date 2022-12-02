@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdvertisementController;
+
 use App\Http\Controllers\AreaMeasurementController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BedroomController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +16,8 @@ use App\Http\Controllers\PropertysInquiryController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\HouseTypeController;
+use App\Http\Controllers\PackageController;
+use App\Http\Controllers\ParameterController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Models\PropertysInquiry;
@@ -90,11 +95,30 @@ Route::middleware(['auth', 'checklogin'])->group(function () {
     Route::get('get-property-by-category', [SliderController::class, 'getPropertyByCategory'])->name('slider.getpropertybycategory');
     Route::get('sliderList', [SliderController::class, 'sliderList']);
 
+    Route::resource('article', ArticleController::class);
+    Route::get('article_list', [ArticleController::class, 'show']);
+    Route::get('article-destory/{id}', [ArticleController::class, 'destroy'])->name('article.destroy');
+
+    Route::resource('advertisement', AdvertisementController::class);
+    Route::get('advertisement_list', [AdvertisementController::class, 'show']);
+    Route::post('advertisement-status', [AdvertisementController::class, 'updateStatus'])->name('advertisement.updateadvertisementstatus');
+
+    Route::resource('package', PackageController::class);
+    Route::get('package_list', [PackageController::class, 'show']);
+    Route::post('package-update', [PackageController::class, 'update']);
+    Route::post('package-status', [PackageController::class, 'updatestatus'])->name('package.updatestatus');
+
+
+
+
+
     Route::resource('categories', CategoryController::class);
     Route::get('categoriesList', [CategoryController::class, 'categoryList']);
     Route::post('categories-update', [CategoryController::class, 'update']);
     Route::post('categories-status', [CategoryController::class, 'updateCategory'])->name('customer.categoriesstatus');
 
+    Route::resource('parameters', ParameterController::class);
+    Route::get('parameter-list', [ParameterController::class, 'show']);
 
     Route::resource('housetype', HouseTypeController::class);
     Route::get('housetypeList', [HouseTypeController::class, 'typeList']);

@@ -43,6 +43,9 @@
                                     <a href="{{ url('categories') }}">Categories</a>
                                 </li>
                             @endif
+                            <li class="submenu-item">
+                                <a href="{{ url('parameters') }}">Parameters</a>
+                            </li>
                         </ul>
                     </li>
                 @endif
@@ -78,6 +81,28 @@
                         </a>
                     </li>
                 @endif
+
+
+                <li class="sidebar-item">
+                    <a href="{{ url('article') }}" class='sidebar-link'>
+                        <i class="bi bi-sliders"></i>
+                        <span>Article</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url('advertisement') }}" class='sidebar-link'>
+                        <i class="bi bi-sliders"></i>
+                        <span>Advertisement</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url('package') }}" class='sidebar-link'>
+                        <i class="bi bi-sliders"></i>
+                        <span>Package</span>
+                    </a>
+                </li>
+
+
                 @if (has_permissions('read', 'notification'))
                     <li class="sidebar-item">
                         <a href="{{ url('notification') }}" class='sidebar-link'>

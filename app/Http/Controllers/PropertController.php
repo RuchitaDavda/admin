@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssignParameters;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Housetype;
 use App\Models\Notifications;
+use App\Models\parameter;
 use App\Models\Property;
 use App\Models\PropertyImages;
 use App\Models\Type;
@@ -50,7 +52,8 @@ class PropertController extends Controller
             });
             $housetype = Housetype::all();
             $taluka = get_taluka_from_json();
-            return view('property.create', compact('category', 'unittype', 'housetype', 'taluka'));
+            $parameters = parameter::all();
+            return view('property.create', compact('category', 'unittype', 'housetype', 'taluka', 'parameters'));
         }
     }
 
@@ -62,6 +65,10 @@ class PropertController extends Controller
      */
     public function store(Request $request)
     {
+
+        $arr = [];
+
+
         if (!has_permissions('read', 'property')) {
             return redirect()->back()->with('error', PERMISSION_ERROR_MSG);
         } else {
@@ -88,20 +95,21 @@ class PropertController extends Controller
             $Saveproperty->propery_type = $request->property_type;
             $Saveproperty->price = $request->price;
             $Saveproperty->unit_type = $request->unit_type;
-            $Saveproperty->carpet_area = (isset($request->carpet_area)) ? $request->carpet_area : '';
-            $Saveproperty->built_up_area = (isset($request->built_up_area)) ? $request->built_up_area : '';
+            // $Saveproperty->parameters = (json_encode($arr));
 
-            $Saveproperty->plot_area = (isset($request->plot_area)) ? $request->plot_area : '';
-            $Saveproperty->hecta_area = (isset($request->hecta_area)) ? $request->hecta_area : '';
+            // $Saveproperty->built_up_area = (isset($request->built_up_area)) ? $request->built_up_area : '';
 
-            $Saveproperty->acre = (isset($request->acre)) ? $request->acre : '';
-            $Saveproperty->house_type = (isset($request->house_type)) ? $request->house_type : '';
-            $Saveproperty->furnished = (isset($request->furnished)) ? $request->furnished : '';
+            // $Saveproperty->plot_area = (isset($request->plot_area)) ? $request->plot_area : '';
+            // $Saveproperty->hecta_area = (isset($request->hecta_area)) ? $request->hecta_area : '';
+
+            // $Saveproperty->acre = (isset($request->acre)) ? $request->acre : '';
+            // $Saveproperty->house_type = (isset($request->house_type)) ? $request->house_type : '';
+            // $Saveproperty->furnished = (isset($request->furnished)) ? $request->furnished : '';
 
 
-            $Saveproperty->house_no = (isset($request->house_no)) ? $request->house_no : '';
-            $Saveproperty->survey_no = (isset($request->survey_no)) ? $request->survey_no : '';
-            $Saveproperty->plot_no = (isset($request->plot_no)) ? $request->plot_no : '';
+            // $Saveproperty->house_no = (isset($request->house_no)) ? $request->house_no : '';
+            // $Saveproperty->survey_no = (isset($request->survey_no)) ? $request->survey_no : '';
+            // $Saveproperty->plot_no = (isset($request->plot_no)) ? $request->plot_no : '';
 
 
             $Saveproperty->state = (isset($request->state)) ? $request->state : '';
@@ -124,6 +132,20 @@ class PropertController extends Controller
 
             $Saveproperty->save();
 
+            $parameters = parameter::all();
+            foreach ($parameters as $par) {
+                if ($request->has($par->id)) {
+                    echo "in";
+                    $assign_parameter = new AssignParameters();
+                    $assign_parameter->parameter_id = $par->id;
+                    $assign_parameter->value = $request->input($par->id);
+                    $assign_parameter->property_id = $Saveproperty->id;
+                    $assign_parameter->modal()->associate($Saveproperty);
+
+                    $assign_parameter->save();
+                    $arr = $arr + [$par->id => $request->input($par->id)];
+                }
+            }
 
             /// START :: UPLOAD GALLERY IMAGE
 
@@ -152,8 +174,6 @@ class PropertController extends Controller
             /// END :: UPLOAD GALLERY IMAGE
 
 
-
-
             return back()->with('success', 'Successfully Added');
         }
     }
@@ -174,19 +194,31 @@ class PropertController extends Controller
             });
 
             $category = Category::where('status', '1')->get();
+            $parameters = parameter::all();
             $unittype = Unit::all()->mapWithKeys(function ($item, $key) {
                 return [$item['id'] => $item['measurement']];
             });
 
 
-            $list = Property::where('id', $id)->get()->first();
-
+            $list = Property::with('assignparameter.parameter')->where('id', $id)->get()->first();
+            // dd($list->toArray());
             $housetype = Housetype::all();
             $taluka = get_taluka_from_json();
             $village = get_village_from_json($list->taluka)[0];
 
+            $arr = json_decode($list->carpet_area);
+            $par_arr = [];
+            $par_id = [];
+            foreach ($list->assignparameter as  $par) {
 
-            return view('property.edit', compact('category', 'unittype', 'housetype', 'village', 'taluka', 'list', 'id'));
+
+                $par_arr = $par_arr + [$par->parameter->name => $par->value];
+                $par_id = $par_id + [$par->parameter->name => $par->value];
+            }
+
+
+
+            return view('property.edit', compact('category', 'unittype', 'housetype', 'village', 'taluka', 'list', 'id', 'par_arr', 'parameters', 'par_id'));
         }
     }
 
@@ -202,7 +234,18 @@ class PropertController extends Controller
         if (!has_permissions('update', 'property')) {
             return redirect()->back()->with('error', PERMISSION_ERROR_MSG);
         } else {
-            $UpdateProperty = Property::find($id);
+
+            // dd($request->toArray());
+            $arr = [];
+
+            $UpdateProperty = Property::with('assignparameter.parameter')->find($id);
+            $parameters = parameter::all();
+            foreach ($UpdateProperty->assignparameter as $par) {
+                echo ($par->parameter->name);
+                $update_parameter = AssignParameters::where('parameter_id', $par->parameter->id)->where('modal_id', $id)->first();
+                $update_parameter->value = $request->input($par->id);
+                $update_parameter->save();
+            }
 
             $destinationPath = public_path('images') . config('global.PROPERTY_TITLE_IMG_PATH');
             if (!is_dir($destinationPath)) {
@@ -224,7 +267,7 @@ class PropertController extends Controller
             $UpdateProperty->unit_type = $request->unit_type;
 
 
-            $UpdateProperty->carpet_area = (isset($request->carpet_area)) ? $request->carpet_area : '';
+            // $UpdateProperty->parameters = (json_encode($arr));
             $UpdateProperty->built_up_area = (isset($request->built_up_area)) ? $request->built_up_area : '';
             $UpdateProperty->plot_area = (isset($request->plot_area)) ? $request->plot_area : '';
             $UpdateProperty->hecta_area = (isset($request->hecta_area)) ? $request->hecta_area : '';
@@ -358,7 +401,7 @@ class PropertController extends Controller
 
 
 
-        $sql = Property::with('category')->with('houseType')->with('unitType')->orderBy($sort, $order);
+        $sql = Property::with('category')->with('houseType')->with('unitType')->with('assignparameter.parameter')->orderBy($sort, $order);
 
 
         if (isset($_GET['search']) && !empty($_GET['search'])) {
@@ -422,11 +465,18 @@ class PropertController extends Controller
                 $operate .= '&nbsp;<a href="' . route('property.destroy', $row->id) . '" onclick="return confirmationDelete(event);" class="btn icon btn-danger btn-sm rounded-pill mt-2" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-dark" title="Delete"><i class="bi bi-trash"></i></a>';
             }
 
-            //$operate .=  '&nbsp;<a  data-toggle="tooltip"  class="btn icon btn-secondary btn-sm rounded-pill mt-2" title="View location" href="https://maps.google.com/?q='.$row->latitude.','.$row->longitude.'"><i class="bi bi-geo-alt"></i></a>';
+
+            $parameter = "";
+
+            foreach ($row->assignparameter  as $res) {
+
+
+                $parameter .= $res->parameter->name . ":" . $res->value . "<br>";
+            }
+            $tempRow['parameters'] = $parameter;
 
             $tempRow['id'] = $row->id;
             $tempRow['title'] = $row->title;
-            $tempRow['carpet_area'] = $row->carpet_area;
             $tempRow['built_up_area'] = $row->built_up_area;
             $tempRow['plot_area'] = $row->plot_area;
             $tempRow['hecta_area'] = $row->hecta_area;
@@ -437,7 +487,7 @@ class PropertController extends Controller
             $tempRow['plot_no'] = $row->plot_no;
 
 
-            $tempRow['category'] = $row->category->category;
+            $tempRow['category'] = isset($row->category->category) ? $row->category->category : '';
             $tempRow['type'] = (!empty($row->housetype)) ? $row->housetype->type : '';
 
             $tempRow['unit_type'] = $row->unittype->measurement;

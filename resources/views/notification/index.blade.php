@@ -79,6 +79,18 @@
                                         </p>
                                     </div>
                                 </div>
+                                <div class="col-md-12 col-12 form-group">
+                                    {{ Form::label('Property', 'Property', ['class' => 'form-label col-12 text-center']) }}
+                                    <select name="property" class="select2 form-select form-control-sm"
+                                        data-parsley-minSelect='1' id="property" required='true'>
+                                        <option value="      "> Select Option </option>
+                                        @foreach ($property_list as $row)
+                                            <option value="{{ $row->id }}" data-parametertypes='{{ $row->name }}'>
+                                                {{ $row->title }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="col-md-12 d-flex justify-content-end">
                                     <button class="btn btn-primary" type="submit" name="submit">Submit</button>
                                 </div>
@@ -257,65 +269,68 @@
 
 
 
-<script type="text/javascript">
-    $(document).on('click', '.delete-data', function () {
-        if (confirm('Are you sure? Want to delete ?')) {
-            var id = $(this).data("id");
-            var image = $(this).data("image");
-            $.ajax({
-                url: "{{url('notification-delete')}}",
-                type: "GET",
-                data: {id: id, image: image},
-                success: function (result) {
-                    if (result.error) {
-                        errorMsg(result.message);
-                    } else {
-                        $('#table_list1').bootstrapTable('refresh');
-                        successMsg(result.message);
-                    }
-                }
-            });
-        }
-    });
-</script>
-
-
-<script type="text/javascript">
-    $('#delete_multiple').on('click', function (e) {
-        table = $('#table_list1');
-        delete_button = $('#delete_multiple');
-        selected = table.bootstrapTable('getSelections');
-        ids = "";
-        $.each(selected, function (i, e) {
-            ids += e.id + ",";
-        });
-        ids = ids.slice(0, -1);
-        if (ids == "") {
-            alert('please Select Some Data');
-        } else {
-            if (confirm('Are You Sure Delete Selected Data')) {
+    <script type="text/javascript">
+        $(document).on('click', '.delete-data', function() {
+            if (confirm('Are you sure? Want to delete ?')) {
+                var id = $(this).data("id");
+                var image = $(this).data("image");
                 $.ajax({
-                    url: "{{url('notification-multiple-delete')}}",
-                    type: "POST",
-                    data: {"_token": "{{ csrf_token() }}", id:ids},
-                    beforeSend: function () {
-                        delete_button.html('<em class="fa fa-spinner fa-pulse"></em>');
+                    url: "{{ url('notification-delete') }}",
+                    type: "GET",
+                    data: {
+                        id: id,
+                        image: image
                     },
-                    success: function (result) {
+                    success: function(result) {
                         if (result.error) {
                             errorMsg(result.message);
                         } else {
-                            delete_button.html('<em class="fa fa-trash"></em>');
                             $('#table_list1').bootstrapTable('refresh');
                             successMsg(result.message);
                         }
                     }
                 });
             }
-        }
-    });
-</script>
+        });
+    </script>
 
 
-
+    <script type="text/javascript">
+        $('#delete_multiple').on('click', function(e) {
+            table = $('#table_list1');
+            delete_button = $('#delete_multiple');
+            selected = table.bootstrapTable('getSelections');
+            ids = "";
+            $.each(selected, function(i, e) {
+                ids += e.id + ",";
+            });
+            ids = ids.slice(0, -1);
+            if (ids == "") {
+                alert('please Select Some Data');
+            } else {
+                if (confirm('Are You Sure Delete Selected Data')) {
+                    $.ajax({
+                        url: "{{ url('notification-multiple-delete') }}",
+                        type: "POST",
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            id: ids
+                        },
+                        beforeSend: function() {
+                            delete_button.html('<em class="fa fa-spinner fa-pulse"></em>');
+                        },
+                        success: function(result) {
+                            if (result.error) {
+                                errorMsg(result.message);
+                            } else {
+                                delete_button.html('<em class="fa fa-trash"></em>');
+                                $('#table_list1').bootstrapTable('refresh');
+                                successMsg(result.message);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 @endsection

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\parameter;
 use App\Models\Setting;
 use Illuminate\Support\Facades\DB;
 
@@ -15,10 +16,10 @@ if (!function_exists('system_setting')) {
 
 if (!function_exists('send_push_notification')) {
     //send Notification
-    function send_push_notification($registrationIDs = array(), $fcmMsg  ='')
+    function send_push_notification($registrationIDs = array(), $fcmMsg  = '')
     {
 
-        $get_fcm_key = DB::table('settings')->select('data')->where('type','fcm_key')->first();
+        $get_fcm_key = DB::table('settings')->select('data')->where('type', 'fcm_key')->first();
 
         $fcm_key = $get_fcm_key->data;
 
@@ -47,94 +48,61 @@ if (!function_exists('send_push_notification')) {
             $get_result = curl_exec($ch);
             curl_close($ch);
             $result = json_decode($get_result, 1);
-            return $result;     
+            return $result;
         }
-        
     }
 }
 
 
 if (!function_exists('get_taluka_from_json')) {
-    function get_taluka_from_json(){
+    function get_taluka_from_json()
+    {
         $taluka =  json_decode(file_get_contents(public_path('json') . "/kachchh.json"), true);
-        
+
         $tempRow = array();
-        foreach($taluka['districts'] as $row){
+        foreach ($taluka['districts'] as $row) {
             $tempRow[] = $row['subDistrict'];
         }
         return $tempRow;
-
     }
 }
 
 
 if (!function_exists('get_village_from_json')) {
-    function get_village_from_json($taluka){
+    function get_village_from_json($taluka)
+    {
 
 
         $village =  json_decode(file_get_contents(public_path('json') . "/kachchh.json"), true);
-        
-        $tempRow = array();
-        foreach($village['districts'] as $row){
 
-            if($row['subDistrict'] == $taluka){
+        $tempRow = array();
+        foreach ($village['districts'] as $row) {
+
+            if ($row['subDistrict'] == $taluka) {
                 $tempRow[] = $row['villages'];
             }
-            
         }
         return $tempRow;
-
     }
 }
 
 
 
 if (!function_exists('parameterTypesByCategory')) {
-    function parameterTypesByCategory($category_id){
+    function parameterTypesByCategory($category_id)
+    {
 
 
-        $parameter_types = DB::table('categories')->select('parameter_types')->where('categories.id',$category_id)->first();
+        $parameter_types = DB::table('categories')->select('parameter_types')->where('categories.id', $category_id)->first();
 
         $tempRow = array();
 
-        $parameterTypes = explode(',',$parameter_types->parameter_types);
-       
-        foreach($parameterTypes as $row){
-            if($row == 1){
-                $tempRow[$row]  = 'Carpet Area';
-            }
-            if($row == 2){
-                $tempRow[$row]  = 'Built-Up Area';
-            } 
-            if($row == 3){
-                $tempRow[$row]  = 'Plot Area';
-            } 
-            if($row == 4){
-                $tempRow[$row]  = 'Hecta Area';
-            } 
-            
-            if($row == 5){
-                $tempRow[$row]  = 'Acre';
-            } 
-            if($row == 6){
-                $tempRow[$row]  = 'House Type';
-            } 
-            if($row == 7){
-                $tempRow[$row]  = 'Furnished';
-            } 
+        $parameterTypes = explode(',', $parameter_types->parameter_types);
 
-            if($row == 8){
-                $tempRow[$row]  = 'House No';
-            } 
-
-            if($row == 9){
-                $tempRow[$row]  = 'Survey No';
-            } 
-            if($row == 10){
-                $tempRow[$row]  = 'Plot No';
-            } 
+        foreach ($parameterTypes as $row) {
+            $par_name = parameter::find($row);
+            $tempRow[$row]  = $par_name->name;
         }
         return  $tempRow;
-
     }
 }

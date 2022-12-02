@@ -96,37 +96,18 @@
                                         Category</th>
                                     <th scope="col" data-field="type" data-halign="center" data-visible="false"
                                         data-sortable="false">Type</th>
-                                    <th scope="col" data-field="carpet_area" data-halign="center"data-visible="false"
-                                        data-sortable="false">Carpet Area</th>
-                                    <th scope="col" data-field="built_up_area" data-halign="center" data-visible="false"
-                                        data-sortable="false">Built Up Area</th>
-                                    <th scope="col" data-field="unit_type" data-halign="center" data-sortable="false">
-                                        Measurement</th>
-                                    <th scope="col" data-field="price" data-halign="center" data-visible="false"
-                                        data-sortable="false">Price</th>
+                                    <th scope="col" data-field="parameters" data-halign="center"data-visible="false"
+                                        data-sortable="false">Parameters</th>
 
-                                    <th scope="col" data-field="plot_area" data-halign="center" data-visible="false"
-                                        data-sortable="false">Plot Area</th>
-                                    <th scope="col" data-field="hecta_area" data-halign="center" data-visible="false"
-                                        data-sortable="false">Hecta Area</th>
-
-                                    <th scope="col" data-field="acre" data-halign="center" data-visible="false"
-                                        data-sortable="false">Acre</th>
-                                    <th scope="col" data-field="house_no" data-halign="center" data-visible="false"
-                                        data-sortable="false">House No</th>
-                                    <th scope="col" data-field="survey_no" data-halign="center" data-visible="false"
-                                        data-sortable="false">Survey No</th>
-                                    <th scope="col" data-field="plot_no" data-halign="center" data-visible="false"
-                                        data-sortable="false">Plot No</th>
 
 
                                     <th scope="col" data-field="status" data-halign="center" data-sortable="false">
                                         Status</th>
-                                    <th scope="col" data-field="title_image" data-halign="center"
-                                        data-sortable="false">Image</th>
+                                    <th scope="col" data-field="title_image" data-halign="center" data-sortable="false">
+                                        Image</th>
                                     @if (has_permissions('update', 'property_inquiry'))
-                                        <th scope="col" data-field="operate" data-halign="center"
-                                            data-sortable="false">Action</th>
+                                        <th scope="col" data-field="operate" data-halign="center" data-sortable="false">
+                                            Action</th>
                                     @endif
 
                                 </tr>

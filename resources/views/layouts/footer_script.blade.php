@@ -1,4 +1,9 @@
 <script src="{{ url('assets/js/bootstrap.js') }}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://bevacqua.github.io/dragula/dist/dragula.js"></script>
+
 <script src="{{ url('assets/js/app.js') }}"></script>
 <script src="{{ url('assets/extensions/jquery/jquery.min.js') }}"></script>
 <script src="{{ url('assets/extensions/tinymce/tinymce.min.js') }}"></script>
@@ -7,7 +12,8 @@
 <script src="{{ url('assets/extensions/parsleyjs/parsley.min.js') }}"></script>
 <script src="{{ url('assets/js/pages/parsley.js') }}"></script>
 <script src="{{ url('assets/extensions/bootstrap-table/bootstrap-table.min.js') }}"></script>
-<script src="{{ url('assets/extensions/bootstrap-table/fixed-columns/bootstrap-table-fixed-columns.min.js') }}"></script>
+<script src="{{ url('assets/extensions/bootstrap-table/fixed-columns/bootstrap-table-fixed-columns.min.js') }}">
+</script>
 <script src="{{ url('assets/extensions/bootstrap-table/mobile/bootstrap-table-mobile.min.js') }}"></script>
 
 <script src="{{ url('assets/extensions/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
@@ -17,6 +23,13 @@
 <script src="{{ url('assets/extensions/sweetalert2/sweetalert2.min.js') }}"></script>
 
 <script src="{{ url('assets/extensions/clipboardjs/dist/clipboard.min.js') }}"></script>
+
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script> --}}
+<script src="https://harvesthq.github.io/chosen/chosen.jquery.js"></script>
+
+
+
+
 
 @if (Session::has('success'))
     <script type="text/javascript">

@@ -9,7 +9,7 @@ class Property extends Model
 {
     use HasFactory;
 
-    protected $table ='propertys';
+    protected $table = 'propertys';
 
     protected $fillable = [
         'category_id',
@@ -38,7 +38,7 @@ class Property extends Model
         'total_click',
         'latitude',
         'longitude'
-       
+
     ];
     protected $hidden = [
         'updated_at',
@@ -49,34 +49,45 @@ class Property extends Model
         'gallery'
     ];
 
-    public function category(){
-        return $this->hasOne(Category::class,'id','category_id')->select('id','category','parameter_types');
+    public function category()
+    {
+        return $this->hasOne(Category::class, 'id', 'category_id')->select('id', 'category', 'parameter_types');
     }
 
 
-    public function unitType(){
-        return $this->hasOne(Unit::class,'id','unit_type')->select('id','measurement');
+    public function unitType()
+    {
+        return $this->hasOne(Unit::class, 'id', 'unit_type')->select('id', 'measurement');
     }
 
 
-    public function customer(){
-        return $this->hasOne(Customer::class,'id','added_by')->select('id','name');
+    public function customer()
+    {
+        return $this->hasOne(Customer::class, 'id', 'added_by')->select('id', 'name');
     }
 
 
-    public function houseType(){
-        return $this->hasOne(Housetype::class,'id','house_type')->select('id','type');
+    public function houseType()
+    {
+        return $this->hasOne(Housetype::class, 'id', 'house_type')->select('id', 'type');
     }
-
+    public function favourite()
+    {
+        return $this->hasMany(Favourite::class);
+    }
+    public function assignparameter()
+    {
+        return $this->hasMany(AssignParameters::class);
+    }
     public function getGalleryAttribute()
     {
-        $data=PropertyImages::select('id','image')->where('propertys_id',$this->id)->get();
+        $data = PropertyImages::select('id', 'image')->where('propertys_id', $this->id)->get();
 
 
         foreach ($data as $item) {
             if ($item['image'] != '') {
                 $item['image'] = $item['image'];
-                $item['image_url'] = ($item['image'] != '') ? url(''). config('global.IMG_PATH') . config('global.PROPERTY_GALLERY_IMG_PATH').$this->id."/".$item['image'] : '';
+                $item['image_url'] = ($item['image'] != '') ? url('') . config('global.IMG_PATH') . config('global.PROPERTY_GALLERY_IMG_PATH') . $this->id . "/" . $item['image'] : '';
             }
         }
         return $data;
